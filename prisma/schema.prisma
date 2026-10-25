@@ -1,0 +1,43 @@
+// SoulReceipt · Prisma 数据模型
+// 运行 `npx prisma db push` 生成 SQLite 数据库（prisma/dev.db）并同步生成 Prisma Client
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 小票主表：一张「确诊单」的全部快照字段。
+// selectedTags / itemsJson 以 JSON 字符串落库（SQLite 无原生 JSON 类型），读取后在前端/服务层解析。
+model Receipt {
+  id            String   @id @default(cuid())
+  serialNo      String   @unique
+  nickname      String
+  mode          String
+  selectedTags  String
+  customNote    String?
+  itemsJson     String
+  subtotal      Float
+  mentalTaxRate String
+  totalWorth    String
+  worthLevel    String
+  roastComment  String
+  stampText     String
+  prescription  String
+  barcodeCode   String
+  barcodeSecret String
+  skinTheme     String   @default("acid-green")
+  sourceEngine  String   @default("local")
+  likesCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+// 全站计数器：固定单行（id = "global"），初始值伪装成「已有 12840 人确诊」
+model GlobalStat {
+  id            String   @id @default("global")
+  totalReceipts Int      @default(12840)
+  updatedAt     DateTime @updatedAt
+}

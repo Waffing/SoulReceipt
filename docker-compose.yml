@@ -1,0 +1,23 @@
+services:
+  soulreceipt:
+    build:
+      context: .
+      # NEXT_PUBLIC_* 属于构建期内联变量，需作为 build arg 传入
+      args:
+        NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+    container_name: soulreceipt
+    ports:
+      - "3000:3000"
+    environment:
+      # SQLite 落在挂载卷内，容器重建数据不丢；接 Postgres/Supabase 时替换连接串即可
+      DATABASE_URL: "file:/app/data/dev.db"
+      # 可选：配置后启用 LLM 算账引擎，留空则 100% 走本地模因引擎
+      # LLM_API_KEY: "sk-xxxx"
+      # LLM_BASE_URL: "https://api.deepseek.com/v1"
+      # LLM_MODEL: "deepseek-chat"
+    volumes:
+      - soulreceipt-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  soulreceipt-data:

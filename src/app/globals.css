@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   SoulReceipt 全局设计系统
+   风格：新粗野主义（Neo-Brutalism）× 酸性热敏（Acid Thermal）
+   注意：设计工具类全部写在 @layer 之外，因为皮肤类（.theme-*）
+   多为运行时动态挂载，放进 @layer 会被 Tailwind JIT purge 掉。
+   ============================================================ */
+
+:root {
+  /* 热敏纸默认配色（classic-white） */
+  --receipt-paper: #f7f4ea;
+  --receipt-ink: #17150f;
+  --receipt-dim: #6b675c;
+
+  /* 酸性全局底色 */
+  --acid-bg: #b8ff29;
+  --acid-pink: #ff48b0;
+  --acid-cyan: #29e6ff;
+  --acid-amber: #ffd23f;
+
+  /* 锯齿几何参数：需与下方 SVG mask 的 20×10 比例保持一致 */
+  --sawtooth-w: 20px;
+  --sawtooth-h: 10px;
+}
+
+/* ---------- 皮肤主题（对应 SkinTheme，挂在小票根节点上生效） ---------- */
+.theme-classic-white {
+  --receipt-paper: #f7f4ea;
+  --receipt-ink: #17150f;
+  --receipt-dim: #6b675c;
+}
+
+.theme-acid-green {
+  --receipt-paper: #e9ffa6;
+  --receipt-ink: #101a00;
+  --receipt-dim: #55702b;
+}
+
+.theme-y2k-pink {
+  --receipt-paper: #ffe3f4;
+  --receipt-ink: #2b0716;
+  --receipt-dim: #9c5b80;
+}
+
+.theme-dark-glitch {
+  --receipt-paper: #101014;
+  --receipt-ink: #d6ff3d;
+  --receipt-dim: #6e7355;
+}
+
+/* ---------- 基础底色 ---------- */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--acid-bg);
+  color: #000;
+  font-family: "JetBrains Mono", "Courier New", "Noto Sans Mono CJK SC",
+    monospace;
+}
+
+::selection {
+  background: #000;
+  color: var(--acid-bg);
+}
+
+/* ---------- 热敏纸锯齿边缘 ----------
+   用 SVG mask 将伪元素裁成连续三角齿，齿色取 var(--receipt-paper)，
+   因此四种皮肤下都能与纸面无缝拼接（mask 只取 alpha，颜色由元素自身提供）。
+   约束：齿部渲染在盒子边界之外（top:100% / bottom:100%），
+   挂载锯齿类的元素上不要设置 overflow:hidden，否则齿会被裁掉。 */
+.receipt-sawtooth-top,
+.receipt-sawtooth-bottom {
+  position: relative;
+}
+
+.receipt-sawtooth-top::before,
+.receipt-sawtooth-bottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--sawtooth-h);
+  pointer-events: none;
+  background-color: var(--receipt-paper);
+  -webkit-mask-repeat: repeat-x;
+  -webkit-mask-size: var(--sawtooth-w) var(--sawtooth-h);
+  mask-repeat: repeat-x;
+  mask-size: var(--sawtooth-w) var(--sawtooth-h);
+}
+
+/* 顶边：三角齿朝上（M0,10 L10,0 L20,10） */
+.receipt-sawtooth-top::before {
+  --sawtooth-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='10'%3E%3Cpath%20d='M0,10L10,0L20,10Z'/%3E%3C/svg%3E");
+  bottom: 100%;
+  -webkit-mask-image: var(--sawtooth-mask);
+  mask-image: var(--sawtooth-mask);
+}
+
+/* 底边：三角齿朝下（M0,0 L20,0 L10,10） */
+.receipt-sawtooth-bottom::after {
+  --sawtooth-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='10'%3E%3Cpath%20d='M0,0L20,0L10,10Z'/%3E%3C/svg%3E");
+  top: 100%;
+  -webkit-mask-image: var(--sawtooth-mask);
+  mask-image: var(--sawtooth-mask);
+}
+
+/* ---------- 新粗野主义按压盒 ---------- */
+.neo-brutal-box {
+  @apply border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
+}
+
+/* ---------- 热敏等宽字体栈 ---------- */
+.thermal-font {
+  font-family: "JetBrains Mono", "Courier New", "Noto Sans Mono CJK SC",
+    monospace;
+}
+
+/* ---------- 热敏打印辉光：刚出炉的橙红余温褪成正常字迹 ---------- */
+@keyframes thermal-glow {
+  0% {
+    color: #ff5a1f;
+    opacity: 0.88;
+    text-shadow:
+      0 0 6px rgba(255, 90, 31, 0.9),
+      0 0 14px rgba(255, 130, 40, 0.55),
+      0 0 28px rgba(255, 60, 0, 0.35);
+  }
+
+  55% {
+    color: #c03e12;
+    opacity: 1;
+    text-shadow: 0 0 5px rgba(255, 110, 40, 0.4);
+  }
+
+  100% {
+    color: var(--receipt-ink, #17150f);
+    opacity: 1;
+    text-shadow: none;
+  }
+}
+
+.animate-thermal-glow {
+  animation: thermal-glow 1.4s ease-out both;
+}
+
+/* 逐行吐纸显影别名类：ReceiptPaper 的最新一行按此名引用 */
+.thermal-glow {
+  animation: thermal-glow 1.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-thermal-glow {
+    animation: none;
+  }
+}
