@@ -1,12 +1,15 @@
 // SoulReceipt · Prisma 数据模型
-// 运行 `npx prisma db push` 生成 SQLite 数据库（prisma/dev.db）并同步生成 Prisma Client
+// 数据库：PostgreSQL（推荐 Supabase / Neon 免费托管；本地可用 Docker Postgres）
+// 运行 `npx prisma db push` 同步 schema 并生成 Prisma Client
+// binaryTargets 补充 rhel 引擎，保证 Vercel（Amazon Linux）运行时可用
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

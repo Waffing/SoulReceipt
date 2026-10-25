@@ -29,8 +29,9 @@
 ## 快速开始
 
 ```bash
+cp .env.example .env   # 填入 Supabase/Neon 的 PostgreSQL 连接串
 npm install            # 自动执行 postinstall: prisma generate
-npx prisma db push     # 初始化 prisma/dev.db
+npx prisma db push     # 同步 schema 到远端数据库
 npm run dev            # http://localhost:3000
 ```
 
@@ -119,9 +120,9 @@ pm2 start npm --name soulreceipt -- start
 
 Nginx 反代时请保留 `X-Forwarded-For` 头，限流才能按真实客户端 IP 生效。
 
-### 数据库升级路径
+### 数据库
 
-`prisma/schema.prisma` 的 provider 由 `sqlite` 改为 `postgresql` 并更新 `DATABASE_URL` 后执行 `npx prisma db push` 即可完成迁移，业务代码零改动。
+生产/本地统一使用 **PostgreSQL**：推荐 [Supabase](https://supabase.com) 或 [Neon](https://neon.tech) 免费托管（GitHub 账号一键注册），连接串填入 `.env` 的 `DATABASE_URL` 后执行 `npx prisma db push` 建表。`schema.prisma` 已内置 `rhel-openssl-3.0.x` 引擎目标，Vercel 运行时开箱即用。
 
 ## 质量保障
 
