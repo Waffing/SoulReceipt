@@ -9,8 +9,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // 建表/迁移走直连通道（Supabase 场景：Session Pooler 或直连串），运行时走 DATABASE_URL（事务池化）
+  directUrl = env("DIRECT_URL")
 }
 
 // 小票主表：一张「确诊单」的全部快照字段。

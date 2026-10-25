@@ -5,7 +5,7 @@
   "description": "精神状态小票机 SoulReceipt · 赛博便利店确诊单",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "next lint",
